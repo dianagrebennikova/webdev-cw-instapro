@@ -1,6 +1,10 @@
 .page-container {
   padding: 0 20px;
 }
+.add-header-container{
+  padding: 0 20px;
+  margin-bottom: 8px;
+}
 
 .page-header {
   display: flex;

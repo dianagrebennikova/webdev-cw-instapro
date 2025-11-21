@@ -12,14 +12,13 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
 
   try {
     const userPosts = await getUserPosts({ userId });
-    window.userPosts = userPosts; //для синхронизации
+    window.userPosts = userPosts; // для синхронизации
 
     const renderPosts = (postsArray) => {
       return postsArray
         .map(post => {
           const postDate = new Date(post.createdAt);
 
-          // проверяем лайк во всех массивах
           const allPosts = [...globalPosts, ...(window.userPosts || [])];
           const postGlobal = allPosts.find(p => p.id === post.id);
           const isLiked = postGlobal?.likes.some(l => l.id === user?._id);
@@ -28,8 +27,8 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
           return `
             <li class="post" data-post-id="${post.id}">
               <div class="post-header" data-user-id="${post.user.id}">
-                <img src="${post.user.imageUrl}" class="post-header__user-image">
-                <p class="post-header__user-name">${post.user.name}</p>
+                <img src="${post.user.imageUrl}" class="posts-user-header__user-image">
+                <p class="posts-user-header__user-name">${post.user.name}</p>
               </div>
               <div class="post-image-container">
                 <img class="post-image" src="${post.imageUrl}">
@@ -61,18 +60,18 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
         .join("");
     };
 
+    // Отображаем страницу пользователя без кнопки "Назад"
     appEl.innerHTML = `
       <div class="page-container">
         <div class="header-container"></div>
-        <button class="back-button">← Назад</button>
         <ul class="posts">${renderPosts(userPosts)}</ul>
       </div>
     `;
 
-    document.querySelector(".back-button").addEventListener("click", () => goToPage(POSTS_PAGE));
-
+    // Рендер шапки
     renderHeaderComponent({ element: document.querySelector(".header-container") });
 
+    // Клик по шапке поста, чтобы открыть посты пользователя
     document.querySelectorAll(".post-header").forEach(userEl => {
       userEl.addEventListener("click", () => {
         const clickedUserId = userEl.dataset.userId;
@@ -82,7 +81,7 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
       });
     });
 
-    // лайки с анимацией
+    // Лайки с анимацией
     document.querySelectorAll(".like-button").forEach(button => {
       button.addEventListener("click", async () => {
         const postId = button.dataset.postId;
@@ -91,7 +90,6 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
 
         try {
           const newLikesCount = await toggleLike(postId);
-
           const allPosts = [...globalPosts, ...(window.userPosts || [])];
           const post = allPosts.find(p => p.id === postId);
           const isLiked = post.likes.some(l => l.id === user._id);
@@ -111,6 +109,7 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
       });
     });
 
+    // Удаление постов
     document.querySelectorAll(".delete-button").forEach((button, index) => {
       button.addEventListener("click", async () => {
         const post = userPosts[index];

@@ -40,16 +40,18 @@ export function uploadImage({ file }) {
   const data = new FormData();
   data.append("file", file);
 
-  return fetch(baseHost + "/api/upload/image", {
+  return fetch("https://wedev-api.sky.pro/api/upload/image", {
     method: "POST",
     body: data,
   })
     .then((response) => response.json())
     .then((data) => {
       console.log("Ответ API при загрузке картинки:", data);
-      return { url: data.fileUrl };
+      return { fileUrl: data.fileUrl };
     });
 }
+
+
 
 //Добавление поста
 export async function addPost({ description, imageUrl, token }) {
