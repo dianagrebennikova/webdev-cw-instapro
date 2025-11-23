@@ -1,6 +1,9 @@
 const personalKey = "diana123test";
-const baseHost = "https://wedev-api.sky.pro/api/v1";
+const apiBase = "https://wedev-api.sky.pro/api";
+const baseHost = `${apiBase}/v1`;
 const postsHost = `${baseHost}/${personalKey}/instapro`;
+const userHost = "https://wedev-api.sky.pro/api/user";
+
 
 //Получение постов
 export function getPosts() {
@@ -9,29 +12,43 @@ export function getPosts() {
     .then((data) => data.posts);
 }
 
-//Регистрация пользователя
-export function registerUser({ login, password, name, imageUrl }) {
-  return fetch(baseHost + "/api/user", {
+//Вход пользователя
+export function loginUser({ login, password }) {
+  console.log("Login data: ", { login, password });
+
+  return fetch(`${userHost}/login`, {
     method: "POST",
-    body: JSON.stringify({ login, password, name, imageUrl }),
-  }).then((response) => {
-    if (response.status === 400) {
-      throw new Error("Такой пользователь уже существует");
+    // Убираем headers полностью
+    body: JSON.stringify({ login, password }),
+  })
+  .then(async (response) => {
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      console.error("Login failed:", data);
+      throw new Error("Неверный логин или пароль");
     }
-    return response.json();
+
+    return data; // { user: {...} }
   });
 }
 
-//Вход пользователя
-export function loginUser({ login, password }) {
-  return fetch(baseHost + "/api/user/login", {
+//Регистрация пользователя
+export function registerUser({ login, password, name }) {
+  return fetch(userHost, {
     method: "POST",
-    body: JSON.stringify({ login, password }),
-  }).then((response) => {
-    if (response.status === 400) {
-      throw new Error("Неверный логин или пароль");
+    body: JSON.stringify({ login, password, name }),
+  }).then(async (response) => {
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        throw new Error("Такой пользователь уже существует");
+      }
+      throw new Error("Ошибка при регистрации");
     }
-    return response.json();
+
+    return data; // { user: { ... } }
   });
 }
 
