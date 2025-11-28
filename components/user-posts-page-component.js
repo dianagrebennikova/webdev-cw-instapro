@@ -3,6 +3,7 @@ import { renderHeaderComponent } from "./header-component.js";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { deletePost, getUserPosts } from "../api.js";
+import { sanitizeHtml } from "../helpers.js";
 
 import likeActiveIcon from "../assets/images/like-active.svg";
 import likeNotActiveIcon from "../assets/images/like-not-active.svg";
@@ -49,7 +50,7 @@ export async function renderUserPostsPageComponent({ appEl, userId }) {
               </div>
               <p class="post-text">
                 <span class="user-name">${post.user.name}</span>
-                ${post.description}
+                ${sanitizeHtml(post.description)}
               </p>
               <p class="post-date">
                 ${formatDistanceToNow(postDate, { addSuffix: true, locale: ru })}
